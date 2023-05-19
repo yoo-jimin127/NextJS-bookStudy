@@ -77,7 +77,7 @@
         - ⭐️ `fetch`, `window`, `document` 등 웹 브라우저에서 제공하는 전역 객체 접근 X
         - ⭐️ `canvas` 등의 HTML 요소 접근 X
     - `fs`, `child_process` 등 Node.js에서만 사용할 수 있는 라이브러리 & API 사용 시,   
-        - 각 요청 별 데이터를 클라이언트로 보내기 전에 서버 사이드 코드 실행 or 페이지 생성 시점에 해당 코드 처리하는 방식 지원
+        - 각 요청 별 데이터를 클라이언트로 보내기 전에 서버 사이드 코드 실행 or 페이지 생성 시점에 해당 코드 처리하는 방식 지원    
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; → 각 페이지가 어떤 렌더링 방식을 사용하느냐에 따라 결정
 - 클라이언트 사이드 앱 생성 시에도 CRA 대신 Next.js 사용 가능
 
