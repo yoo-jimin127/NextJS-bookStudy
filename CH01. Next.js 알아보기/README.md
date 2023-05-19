@@ -81,5 +81,160 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; → 각 페이지가 어떤 렌더링 방식을 사용하느냐에 따라 결정
 - 클라이언트 사이드 앱 생성 시에도 CRA 대신 Next.js 사용 가능
 
+## ▶️ Next.js 시작하기
+- Node.js & npm으로 실행 가능
+- CNA : `create-next-app`
 
+```cmd
+// Next.js App 생성
+$ npx create-next-app <app-name>
 
+// npm 패키지로 덮어씌우기
+$ npx create-next-app <app-name> --use-npm
+
+// 사용하고자 하는 보일러플레이트 코드를 지정하는 옵션
+// ex) Next.js 앱을 도커 환경에서 실행하는 예시
+$ npx create-next-app <app-name> --example with-docker
+```
+
+- Next.js 기본 구조
+```
+- README.md
+- next.config.js
+- node_modules/
+- package-lock.json
+- package.json
+- pages/
+    - _app.js
+    - api/
+        - hello.js
+    - index.js
+- public/
+    - favicon.ico
+    - vercel.svg
+- styles/
+    - Home.module.css
+    - globals.css
+```
+- `Next.js`에서의 네비게이션 : **`pages/` 디렉터리** (필수 디렉터리 ✔️)
+    - ⭐️ `pages/` 디렉터리 내부 모든 JS 파일 : `public page`가 됨
+    - `pages/` 디렉터리의 `index.js` 파일을 복사해 `about.js`로 변경    
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; → `http://localhost:3000/about` 주소 접근 시 똑같은 페이지 확인 가능    
+- **`public/` 디렉터리** (필수 디렉터리 ✔️)
+    - 웹 사이트의 모든 퍼블릭 페이지 & 정적 콘텐츠
+    - ex) 이미지 파일, 컴파일된 CSS 스타일시트, 컴파일된 자바스크립트 파일, 폰트 등
+- **`styles/` 디렉터리** (선택 디렉터리)
+    - 웹 애플리케이션에서 사용하는 스타일시트를 해당 디렉터리에 둘 수 있음
+    - Next.js 프로젝트에 `styles/` 디렉터리가 꼭 필요한 것 X
+<br />
+
+- **타입스크립트 지원**
+    - `Next.js` : TS로 작성된 프레임워크 → 태생적으로 고품질 타입 정의 지원
+    - 프로젝트 최상위 디렉터리 내에 `tsconfig.json`(타입스크립트 설정 파일) 생성 → `npm run dev`
+    - Next.js가 바벨의 `@babel/plugin-transform-typescript` 사용해 설정 파일 관리
+        - `@babel/plugin-transform-typescript` : **const enum** 지원 X
+            - const enum 사용 시 `babel-plugin-const-enum` 추가 필요
+        - `export =`, `import =` 구문 사용 X
+            - 두 구문 모두 ECMAScript 코드로 컴파일 X
+            - `babel-replacets-export-assignment` 설치 or `import x, {y} from 'same-package'` / `export default x` 등 올바른 ECMA 구문 사용 권장
+        - 몇가지 TS 컴파일 옵션이 기본과 다름, [공식 바벨 문서](https://babeljs.io/docs/babel-plugin-transform-typescript#typescript-compiler-options) 확인 
+    - 최상위 디렉터리에 `next-env.d.ts` 파일 생성 (수정 가능, 삭제 X)
+<br />
+
+- **바벨과 웹팩 설정 커스터마이징**
+    - `Babel` : JS 트랜스컴파일러 - 최신 자바스크립트 코드를 하위 호환성을 보장하는 스크립트 코드로 변환하는 작업 담당
+        - 하위 호완성 보장 → 어떤 웹 브라우저에서든 JS 코드 실행 O
+        - ES6 or ESNext의 기능을 사용한 JS 코드 : 빌드 시점에 인터넷 익스플로러와 호환되는 코드로 변환 가능
+        - ex)
+        ```js
+        // Node.js 실행 시 문법 오류 메시지 출력 → JS 엔진 : export default 키워드 모름
+        export default function() {
+            console.log("Hello, World!");
+        }
+        ```
+        - 바벨 사용 시 :
+        ```js
+        // Node.js에서 문제 없이 실행되는 코드
+        "use strict";
+        Object.defineProperty(exports, "__esModule", {
+            value: true
+        });
+        exports.default = _default;
+        function _default() {
+            console.log("Hello, World!");
+        }
+        ```
+    - Next.js의 바벨 설정 커스터마이징 : 프로젝트 최상위 디렉터리에 `.babelrc` 파일 생성
+        - `.babelrc`가 비어있으면 오류 발생 → 최소한의 내용 저장 필요   
+        ```
+        {
+            "presets": ["next/babel"]
+        }
+        ```
+        - Vercel 팀에서 Next.js 애플리케이션 빌드 & 개발할 때 사용 가능한 설정은 미리 저장해둔 바벨 설정 값  
+    - 파이프라인 연산자
+    ```js
+    console.log(Math.random() * 10);
+    // 파이프라인 연산자 사용 시 하기 코드로 변환 가능
+    |> x => x * 10
+    |> console.log;
+    ```
+    - Next.js에서의 파이프라인 연산자 사용
+        1. 바벨 플러그인 설치
+        ```cmd
+        $ npm install --save-dev @babel/plugin-proposal-pipeline-operator @babel/core
+        ```
+        2. `.babelrc` 파일 수정
+        ```
+        {
+            "presets": ["next/babel"],
+            "plugins": [
+                [
+                    "@babel/plugin-proposal-pipeline-operator",
+                    { "proposal": "fsharp" }
+                ]
+            ]
+        }
+        ```
+    <br />
+    
+    - `Webpack` : 특정 라이브러리, 페이지, 기능에 대해 컴파일된 코드를 전부 포함하는 번들 생성
+        - ex) 서로 다른 라이브러리에서 각각 한 개씩 세 개의 컴포넌트를 불러오는 페이지를 만들 경우,
+            - 웹팩 : 클라이언트가 이를 받아 실행할 수 있는 **하나의 번들**로 합쳐줌
+        - JS 파일, CSS, SVG 등 웹에서 사용하는 모든 자원에 대한 각기 다른 `컴파일 번들`, `최소화 작업`을 조율 & 처리하는 인프라
+    <br />
+
+    - ⭐️ **`Next.js` : '설정보다 관습'** - 애플리케이션 개발 과정에서 설정을 바꿀 일이 많지 않음
+        - 적절한 코드 컨벤션을 따라 개발하는 경우 ↑
+    - 애플리케이션 빌드 과정의 수정이 필요하다면 `next.config.js` 파일의 기본 값 변경으로도 충분
+        - 프로젝트의 최상위 디렉터리에 만들고 객체를 export → 해당 내용이 Next.js의 기본 설정 값 덮어씀
+        ```js
+        module.exports = {
+            // 변경할 설정값
+        }
+        ```
+    <br />
+
+    - 기본 웹팩 설정 변경 희망 시 : webpack 키에 새로운 속성값 지정  
+        - ex) 웹팩 로더에 `my-custom-loader`라는 가상의 로더 추가 희망 시
+        ```js
+        module.exports = {
+            webpack: (config, options) => {
+                config.module.rules.push({
+                    test: /\.js/.
+                    use: [
+                        options.defaultLoaders.babel,
+                        // 해당 부분은 예시히므로, 실제 사용 시 애플리케이션 작동 X
+                        {
+                            loader: "my-custom-loader", // 사용할 로더 지정
+                            options: loaderOptions, // 로더 옵션 지정
+                        },
+                    ],
+                });
+                return config;
+            },
+        }
+        ```
+        - 위와 같이 웹팩 설정 추가 시 추후 Next.js 기본 설정과 합쳐짐
+            - 기본 설정 지우거나 직접 바꾸는 행위 : 바람직 X   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; → 기본 설정은 그대로 두고, 추가로 설정 값을 확장 or 덮어쓰는 것 권장    
